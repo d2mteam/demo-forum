@@ -1,45 +1,133 @@
 plugins {
-    id 'java'
-    id 'org.springframework.boot' version '3.5.9'
-    id 'io.spring.dependency-management' version '1.1.7'
+    id 'java' apply false
+    id 'java-library' apply false
+    id 'org.springframework.boot' version '3.5.9' apply false
+    id 'io.spring.dependency-management' version '1.1.7' apply false
 }
 
-group = 'com'
-version = '0.0.1-SNAPSHOT'
-description = 'demo-forum'
+def javaVersion = JavaLanguageVersion.of(21)
 
-java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(21)
+def lombokVersion = '1.18.36'
+
+def mapstructVersion = '1.6.3'
+
+def pf4jVersion = '3.10.0'
+
+def logstashEncoderVersion = '7.4'
+
+def testcontainersVersion = '1.20.4'
+
+subprojects {
+    apply plugin: 'java-library'
+
+    group = 'com.demo.forum'
+    version = '0.0.1-SNAPSHOT'
+
+    java {
+        toolchain {
+            languageVersion = javaVersion
+        }
+    }
+
+    repositories {
+        mavenCentral()
+    }
+
+    configurations {
+        compileOnly {
+            extendsFrom annotationProcessor
+        }
+    }
+
+    dependencies {
+        compileOnly "org.projectlombok:lombok:${lombokVersion}"
+        annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+    }
+
+    tasks.named('test') {
+        useJUnitPlatform()
     }
 }
 
-configurations {
-    compileOnly {
-        extendsFrom annotationProcessor
+project(':core-domain') {
+    dependencies {
+        api 'jakarta.persistence:jakarta.persistence-api:3.1.0'
+        api 'jakarta.validation:jakarta.validation-api:3.1.0'
     }
 }
 
-repositories {
-    mavenCentral()
+project(':core-application') {
+    dependencies {
+        api project(':core-domain')
+    }
 }
 
-dependencies {
-    implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'
-    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
-    implementation 'org.springframework.boot:spring-boot-starter-graphql'
-    implementation 'org.springframework.boot:spring-boot-starter-jdbc'
-    implementation 'org.springframework.boot:spring-boot-starter-validation'
-    implementation 'org.springframework.boot:spring-boot-starter-web'
-    compileOnly 'org.projectlombok:lombok'
-    runtimeOnly 'org.postgresql:postgresql'
-    annotationProcessor 'org.projectlombok:lombok'
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    testImplementation 'org.springframework.graphql:spring-graphql-test'
-    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+project(':core-infrastructure') {
+    dependencies {
+        api project(':core-domain')
+        api project(':core-application')
+        api 'org.springframework.boot:spring-boot-starter-data-jpa'
+        api 'org.springframework.boot:spring-boot-starter-data-redis'
+        api 'org.flywaydb:flyway-core'
+        runtimeOnly 'org.postgresql:postgresql'
+
+        testImplementation 'org.springframework.boot:spring-boot-starter-test'
+        testImplementation "org.testcontainers:postgresql:${testcontainersVersion}"
+        testImplementation "org.testcontainers:junit-jupiter:${testcontainersVersion}"
+    }
 }
 
-tasks.named('test') {
-    useJUnitPlatform()
+project(':core-api') {
+    apply plugin: 'org.springframework.boot'
+    apply plugin: 'io.spring.dependency-management'
+
+    dependencies {
+        implementation project(':core-application')
+        implementation project(':core-infrastructure')
+        implementation project(':plugin-api')
+        implementation 'org.springframework.boot:spring-boot-starter-validation'
+        implementation 'org.springframework.boot:spring-boot-starter-web'
+        implementation 'org.springframework.boot:spring-boot-starter-actuator'
+        implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+        implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+        implementation 'org.flywaydb:flyway-core'
+        implementation "net.logstash.logback:logstash-logback-encoder:${logstashEncoderVersion}"
+        implementation "org.mapstruct:mapstruct:${mapstructVersion}"
+        annotationProcessor "org.mapstruct:mapstruct-processor:${mapstructVersion}"
+        annotationProcessor 'org.projectlombok:lombok-mapstruct-binding:0.2.0'
+
+        runtimeOnly 'org.postgresql:postgresql'
+
+        testImplementation 'org.springframework.boot:spring-boot-starter-test'
+        testImplementation "org.testcontainers:postgresql:${testcontainersVersion}"
+        testImplementation "org.testcontainers:junit-jupiter:${testcontainersVersion}"
+    }
+
+}
+
+project(':plugin-api') {
+    dependencies {
+        api "org.pf4j:pf4j:${pf4jVersion}"
+    }
+}
+
+project(':plugins:sample-spam-links') {
+    dependencies {
+        implementation project(':plugin-api')
+        implementation "org.pf4j:pf4j:${pf4jVersion}"
+    }
+}
+
+project(':plugins:sample-toxicity') {
+    dependencies {
+        implementation project(':plugin-api')
+        implementation "org.pf4j:pf4j:${pf4jVersion}"
+    }
+}
+
+project(':plugins:sample-badge-streak') {
+    dependencies {
+        implementation project(':plugin-api')
+        implementation "org.pf4j:pf4j:${pf4jVersion}"
+    }
 }
