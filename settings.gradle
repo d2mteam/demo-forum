@@ -1,1 +1,10 @@
-rootProject.name = 'demo-forum'
+rootProject.name = 'forum'
+
+include 'core-domain'
+include 'core-application'
+include 'core-infrastructure'
+include 'core-api'
+include 'plugin-api'
+include 'plugins:sample-spam-links'
+include 'plugins:sample-toxicity'
+include 'plugins:sample-badge-streak'
