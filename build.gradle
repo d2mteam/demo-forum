@@ -131,3 +131,10 @@ project(':plugins:sample-badge-streak') {
         implementation "org.pf4j:pf4j:${pf4jVersion}"
     }
 }
+
+project(':plugins:forum-base') {
+    dependencies {
+        implementation project(':plugin-api')
+        implementation "org.pf4j:pf4j:${pf4jVersion}"
+    }
+}
