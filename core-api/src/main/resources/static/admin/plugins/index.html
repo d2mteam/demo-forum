@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Forum Admin Plugins</title>
+    <link rel="stylesheet" href="/admin/plugins/admin.css" />
+  </head>
+  <body>
+    <div class="admin-shell">
+      <aside class="sidebar">
+        <div class="brand">Forum Admin</div>
+        <nav>
+          <a class="active" href="/admin/plugins">Plugins</a>
+          <a href="#media">Media</a>
+        </nav>
+      </aside>
+      <main class="content">
+        <header class="page-header">
+          <div>
+            <h1>Plugins</h1>
+            <p>Quản lý plugin theo kiểu WordPress: danh sách, trạng thái, nhà cung cấp.</p>
+          </div>
+          <div class="pager" id="plugin-pager"></div>
+        </header>
+        <section class="card-grid" id="plugin-list"></section>
+
+        <section class="media-section" id="media">
+          <header class="page-header">
+            <div>
+              <h2>Media Library</h2>
+              <p>Upload nhiều file một lúc và xem trước ảnh ngay trong thư viện.</p>
+            </div>
+            <div class="pager" id="media-pager"></div>
+          </header>
+          <form class="upload-form" id="media-upload">
+            <label class="upload-label">
+              <input type="file" id="media-files" name="files" multiple />
+              Chọn nhiều file
+            </label>
+            <button type="submit">Tải lên</button>
+          </form>
+          <div class="media-grid" id="media-list"></div>
+        </section>
+      </main>
+    </div>
+    <script src="/admin/plugins/admin.js"></script>
+  </body>
+</html>
